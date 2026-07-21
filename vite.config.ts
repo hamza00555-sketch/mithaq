@@ -9,7 +9,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['fonts/cairo-arabic.woff2', 'fonts/cairo-latin.woff2', 'icons/icon.svg'],
+      includeAssets: [
+        'fonts/tajawal-400.woff2', 'fonts/tajawal-500.woff2', 'fonts/tajawal-700.woff2',
+        'fonts/tajawal-800.woff2', 'fonts/elmessiri-var.woff2', 'icons/icon.svg',
+      ],
       manifest: {
         name: 'ميثاق',
         short_name: 'ميثاق',
