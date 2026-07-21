@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+/* ═══ خط Cairo (محلي — يعمل بدون إنترنت) ═══ */
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url('/fonts/cairo-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url('/fonts/cairo-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ═══ هوية «ليل النجوم» 🌠 ═══ */
+@theme {
+  --font-sans: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  --color-night-950: #0d0a1c;
+  --color-night-900: #161129;
+  --color-night-800: #231a3f;
+  --color-royal: #544294;
+  --color-royal-light: #7a5cc9;
+  --color-plum: #94427a;
+  --color-plum-light: #b0568f;
+  --color-gold: #f0d9a8;
+  --color-gold-deep: #d9a85c;
+  --color-lavender: #cabfff;
+  --color-rose-soft: #e8919f;
+  --color-mint: #40c9b0;
+  --color-ink: #efeafb;
+}
+
+html { font-family: var(--font-sans); }
+
+body {
+  background: radial-gradient(900px 620px at 50% -120px, var(--color-night-800) 0%, var(--color-night-950) 72%) fixed;
+  color: var(--color-ink);
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* بطاقات زجاجية بنفسجية */
+.glass {
+  background: rgba(159, 143, 232, 0.10);
+  border: 1px solid rgba(159, 143, 232, 0.32);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+}
+
+/* الشعار الذهبي */
+.gold-glow { color: var(--color-gold); text-shadow: 0 0 18px rgba(240, 217, 168, 0.27); }
+
+/* زر أساسي: تدرج بنفسجي→أرجواني + نبض توهج */
+.btn-primary {
+  background: linear-gradient(120deg, var(--color-royal), var(--color-plum));
+  border: 1px solid rgba(183, 164, 255, 0.33);
+  border-radius: 18px;
+  font-weight: 800;
+  position: relative;
+  overflow: hidden;
+  animation: glowpulse 4s ease-in-out infinite;
+  transition: transform 0.15s ease;
+}
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 60px;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: shimmer 3s infinite;
+}
+
+/* زر ذهبي */
+.btn-gold {
+  background: linear-gradient(120deg, var(--color-gold), var(--color-gold-deep));
+  color: #241a33;
+  border-radius: 16px;
+  font-weight: 800;
+  box-shadow: 0 8px 26px rgba(240, 217, 168, 0.27);
+  transition: transform 0.15s ease;
+}
+.btn-gold:active { transform: scale(0.97); }
+
+/* زر ثانوي خافت */
+.btn-ghost {
+  background: rgba(159, 143, 232, 0.10);
+  border: 1px solid rgba(159, 143, 232, 0.32);
+  border-radius: 16px;
+  font-weight: 700;
+  transition: transform 0.15s ease;
+}
+.btn-ghost:active { transform: scale(0.97); }
+
+/* حقول الإدخال */
+.field {
+  background: rgba(13, 10, 28, 0.55);
+  border: 1px solid rgba(159, 143, 232, 0.35);
+  border-radius: 14px;
+  color: var(--color-ink);
+  padding: 12px 14px;
+  width: 100%;
+  outline: none;
+}
+.field:focus { border-color: var(--color-gold); box-shadow: 0 0 0 3px rgba(240, 217, 168, 0.12); }
+.field::placeholder { color: rgba(202, 191, 255, 0.4); }
+
+/* شارات الحالة */
+.chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+.chip-ok    { background: rgba(64,201,176,.2);  color: #7fe8d5; border: 1px solid rgba(64,201,176,.4); }
+.chip-wait  { background: rgba(240,217,168,.2); color: #f5e3bd; border: 1px solid rgba(240,217,168,.4); animation: twinkle 2.4s infinite; }
+.chip-done  { background: rgba(122,92,201,.2);  color: var(--color-lavender); border: 1px solid rgba(122,92,201,.4); }
+.chip-miss  { background: rgba(224,92,92,.2);   color: #f5a3a3; border: 1px solid rgba(224,92,92,.4); }
+
+@keyframes glowpulse { 0%, 100% { box-shadow: 0 0 26px rgba(122,92,201,.33); } 50% { box-shadow: 0 0 42px rgba(148,66,122,.53); } }
+@keyframes shimmer { 0% { transform: translateX(130%); } 100% { transform: translateX(-130%); } }
+@keyframes twinkle { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes popin { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes slideup { 0% { transform: translateY(24px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: .6; }
+}
+
+.anim-popin { animation: popin .25s ease-out; }
+.anim-slideup { animation: slideup .3s ease-out; }
+.anim-floaty { animation: floaty 8s ease-in-out infinite; }
+
+/* النجوم والقمر (خلفية حية) */
+.star { position: fixed; background: #fff; border-radius: 50%; animation: twinkle 3s infinite; pointer-events: none; z-index: 0; }
+.moon {
+  position: fixed; top: 52px; left: 22px; width: 46px; height: 46px; border-radius: 50%;
+  background: radial-gradient(circle at 65% 35%, #f7ecd0, #d9c08a);
+  box-shadow: 0 0 30px rgba(240, 217, 168, 0.4);
+  animation: floaty 9s ease-in-out infinite;
+  pointer-events: none; z-index: 0;
+}
+.halo { position: fixed; border-radius: 50%; filter: blur(30px); pointer-events: none; z-index: 0; }
+
+/* شريط التنقل السفلي */
+.bottom-nav {
+  background: rgba(13, 10, 28, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(159, 143, 232, 0.3);
+}
+.nav-glow { filter: drop-shadow(0 0 8px var(--color-gold)); }
+
+/* عجلة العقاب */
+.wheel-face {
+  border: 6px solid var(--color-gold);
+  box-shadow: 0 0 36px rgba(122, 92, 201, 0.4), inset 0 0 26px rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+}
+.wheel-pointer {
+  width: 0; height: 0;
+  border-left: 13px solid transparent;
+  border-right: 13px solid transparent;
+  border-top: 20px solid var(--color-gold);
+  filter: drop-shadow(0 0 6px rgba(240, 217, 168, 0.67));
+}
+
+/* رقعة إكس-أو */
+.xo-cell {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: rgba(159, 143, 232, 0.08);
+  border: 1px solid rgba(159, 143, 232, 0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; font-weight: 800;
+  transition: background .15s;
+}
+.xo-cell:not(:disabled):active { background: rgba(159, 143, 232, 0.2); }
+.xo-x { color: var(--color-gold); text-shadow: 0 0 12px var(--color-gold-deep); }
+.xo-o { color: var(--color-lavender); text-shadow: 0 0 12px var(--color-royal-light); }
+
+/* إخفاء سكرول بار مع بقاء التمرير */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
