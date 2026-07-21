@@ -6,3 +6,8 @@ dev-dist
 *.local
 .firebase
 firebase-debug.log
+
+# Firebase emulator logs
+firestore-debug.log
+ui-debug.log
+firebase-debug.log

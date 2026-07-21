@@ -7,30 +7,42 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    // فهرس أكواد الدعوة: code → coupleId (لا يحتوي أي بيانات حساسة)
+    // get فقط بالكود المعروف مسبقًا (لا list) — فلا يمكن تعداد الأكواد أو تخمينها
+    match /inviteCodes/{code} {
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if request.auth != null
+        && request.resource.data.coupleId is string
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     match /couples/{cid} {
       function isMember() {
         return request.auth != null && request.auth.uid in resource.data.members;
       }
-      function willBeMember() {
-        return request.auth != null && request.auth.uid in request.resource.data.members;
-      }
 
-      // القراءة: الأعضاء فقط. البحث بكود الدعوة يتطلب قراءة قائمة — نسمح
-      // بالقراءة لأي مسجل دخول لكن فقط عبر استعلام inviteCode (بدون كشف بيانات حساسة هنا)
-      allow read: if request.auth != null;
+      // القراءة والتعداد: الأعضاء فقط — لا يقدر أي أحد آخر يشوف الميثاق
+      allow get: if isMember();
+      allow list: if false;
 
       // الإنشاء: المنشئ يكون العضو الوحيد
       allow create: if request.auth != null
         && request.resource.data.members.size() == 1
         && request.auth.uid == request.resource.data.members[0];
 
-      // التحديث: عضو حالي، أو انضمام طرف ثانٍ بكود الدعوة (من 1 إلى 2 أعضاء)
+      // التحديث: عضو حالي، أو انضمام طرف ثانٍ لميثاق فيه عضو واحد بشرط:
+      //  - يضيف نفسه   - يحافظ على العضو الأصلي (ما يقدر يزيحه)   - نفس كود الدعوة
       allow update: if isMember()
         || (request.auth != null
             && resource.data.members.size() == 1
             && request.resource.data.members.size() == 2
-            && willBeMember()
+            && resource.data.members[0] in request.resource.data.members
+            && request.auth.uid in request.resource.data.members
             && request.resource.data.inviteCode == resource.data.inviteCode);
+
+      allow delete: if false;
 
       // كل البيانات الفرعية — أعضاء الميثاق فقط
       match /{sub=**} {

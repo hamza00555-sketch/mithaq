@@ -1,6 +1,6 @@
 import {
-  addDoc, arrayUnion, collection, doc, getDoc, getDocs, increment, limit as qLimit,
-  query, runTransaction, serverTimestamp, setDoc, Timestamp, updateDoc, where,
+  addDoc, arrayUnion, collection, doc, getDoc, increment,
+  runTransaction, serverTimestamp, setDoc, Timestamp, updateDoc,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import type {
@@ -20,12 +20,15 @@ const genCode = () => {
 }
 
 export async function createCouple(uid: string, name: string): Promise<string> {
+  const code = genCode()
   const ref = await addDoc(collection(db(), 'couples'), {
     members: [uid],
     memberNames: { [uid]: name },
-    inviteCode: genCode(),
+    inviteCode: code,
     createdAt: serverTimestamp(),
   })
+  // فهرس الكود (يمكّن الطرف الثاني من الانضمام بدون قراءة كل المواثيق)
+  await setDoc(doc(db(), 'inviteCodes', code), { coupleId: ref.id, createdBy: uid })
   // العقوبات الافتراضية
   await Promise.all(DEFAULT_PUNISHMENTS.map(text =>
     addDoc(collection(db(), 'couples', ref.id, 'punishments'), { text, addedBy: uid, active: true })
@@ -38,19 +41,28 @@ export async function createCouple(uid: string, name: string): Promise<string> {
 }
 
 export async function joinCouple(uid: string, name: string, code: string): Promise<string> {
-  const q = query(collection(db(), 'couples'), where('inviteCode', '==', code.toUpperCase().trim()), qLimit(1))
-  const snap = await getDocs(q)
-  if (snap.empty) throw new Error('الكود غير صحيح — تأكد منه وحاول مرة ثانية')
-  const c = snap.docs[0]
-  const members: string[] = c.data().members
-  if (members.includes(uid)) {
-    await updateDoc(doc(db(), 'users', uid), { coupleId: c.id })
-    return c.id
+  const key = code.toUpperCase().trim()
+  const codeSnap = await getDoc(doc(db(), 'inviteCodes', key))
+  if (!codeSnap.exists()) throw new Error('الكود غير صحيح — تأكد منه وحاول مرة ثانية')
+  const cid = codeSnap.data().coupleId as string
+
+  // إذا كان عضوًا مسبقًا (يقدر يقرأ الوثيقة) — فقط اربط الحساب
+  try {
+    const c = await getDoc(doc(db(), 'couples', cid))
+    if (c.exists() && (c.data().members as string[]).includes(uid)) {
+      await updateDoc(doc(db(), 'users', uid), { coupleId: cid })
+      return cid
+    }
+  } catch { /* ليس عضوًا بعد — نكمل الانضمام */ }
+
+  // الانضمام (arrayUnion لا يحتاج قراءة الوثيقة)؛ القواعد ترفض لو الميثاق مكتمل
+  try {
+    await updateDoc(doc(db(), 'couples', cid), { members: arrayUnion(uid), [`memberNames.${uid}`]: name })
+  } catch {
+    throw new Error('هذا الميثاق مكتمل بطرفيه')
   }
-  if (members.length >= 2) throw new Error('هذا الميثاق مكتمل بطرفيه')
-  await updateDoc(c.ref, { members: arrayUnion(uid), [`memberNames.${uid}`]: name })
-  await updateDoc(doc(db(), 'users', uid), { coupleId: c.id })
-  return c.id
+  await updateDoc(doc(db(), 'users', uid), { coupleId: cid })
+  return cid
 }
 
 // ═══════════ التحفيز: نقاط/سلسلة/أوسمة (transaction) ═══════════
