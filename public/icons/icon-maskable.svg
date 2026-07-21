@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="18%" r="95%">
+      <stop offset="0%" stop-color="#231a3f"/>
+      <stop offset="100%" stop-color="#0d0a1c"/>
+    </radialGradient>
+    <radialGradient id="moon" cx="62%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#f7ecd0"/>
+      <stop offset="100%" stop-color="#d9a85c"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="16" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- خلفية ملء الإطار بالكامل (تمنع الأطراف البيضاء عند القص) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- المحتوى داخل المنطقة الآمنة (وسط ~72%) -->
+  <g transform="translate(256,256) scale(0.7) translate(-256,-256)">
+    <circle cx="120" cy="120" r="4" fill="#fff" opacity=".8"/>
+    <circle cx="398" cy="96" r="3.5" fill="#fff" opacity=".6"/>
+    <circle cx="420" cy="330" r="4" fill="#fff" opacity=".7"/>
+    <circle cx="104" cy="352" r="3.5" fill="#fff" opacity=".55"/>
+    <circle cx="330" cy="430" r="3.5" fill="#fff" opacity=".6"/>
+    <g filter="url(#glow)">
+      <path d="M 322 108 A 158 158 0 1 0 322 404 A 126 126 0 0 1 322 108 Z" fill="url(#moon)"/>
+    </g>
+    <path d="M 355 236 l 10.5 24.5 26.5 2.3 -20 17.5 6 26 -23 -13.8 -23 13.8 6 -26 -20 -17.5 26.5 -2.3 Z" fill="#f0d9a8"/>
+  </g>
+</svg>
