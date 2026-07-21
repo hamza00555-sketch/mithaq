@@ -1,3 +1,7 @@
+// اختبار قواعد أمان Firestore (اختياري — أدوات الاختبار ليست ضمن تبعيات التطبيق).
+// للتشغيل محليًا:
+//   npm i -D firebase-tools @firebase/rules-unit-testing --legacy-peer-deps
+//   npx firebase emulators:exec --only firestore --project demo-mithaq "node rules.test.mjs"
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing'
 import { readFileSync } from 'fs'
 import { doc, getDoc, setDoc, updateDoc, arrayUnion, collection, getDocs } from 'firebase/firestore'
