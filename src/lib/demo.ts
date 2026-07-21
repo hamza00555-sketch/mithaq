@@ -37,7 +37,7 @@ export const demoSignals: MoodSignal[] = []
 
 export const demoMatches: Match[] = [
   {
-    id: 'm1', gameType: 'xo', createdBy: U2, status: 'playing', prize: 'wish', prizeSettled: false,
+    id: 'm1', gameType: 'xo', createdBy: U2, status: 'waiting', prize: 'wish', prizeSettled: false,
     createdAt: at(-1),
     state: {
       board: ['x', 'o', '', 'o', 'x', '', '', '', ''],

@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { addPunishment, assignPenalty, forgivePenalty, penaltyDone, togglePunishment } from '../lib/data'
+import { addPunishment, assignPenalty, penaltyDone, togglePunishment } from '../lib/data'
 import type { Penalty } from '../lib/types'
 
 const SEG_COLORS = ['#544294', '#94427a', '#d9a85c', '#7a5cc9', '#b0568f', '#8d6f3a', '#40639c', '#a34c5e']
@@ -116,14 +116,9 @@ export default function Wheel() {
                   نفذتها ✅ (+٣ نقاط)
                 </button>
               ) : (
-                <>
-                  <button className="btn-gold flex-1 py-2.5 text-sm" onClick={() => forgivePenalty(cid, p.id, uid)}>
-                    مسامح/ة 💝
-                  </button>
-                  <button className="btn-ghost flex-1 py-2.5 text-sm" onClick={() => penaltyDone(cid, p.id)}>
-                    تم التنفيذ ✓
-                  </button>
-                </>
+                <button className="btn-ghost flex-1 py-2.5 text-sm" onClick={() => penaltyDone(cid, p.id)}>
+                  تم التنفيذ ✓
+                </button>
               )}
             </div>
           </div>

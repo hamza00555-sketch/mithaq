@@ -60,10 +60,9 @@ export type GameEvent =
   | { type: 'penalty_done' }
   | { type: 'wish_fulfilled' }
   | { type: 'match_completed'; winnerUid?: string }
-  | { type: 'forgive'; byUid: string }
 
 const POINTS: Record<string, number> = {
-  date_completed: 10, date_missed: -5, penalty_done: 3, wish_fulfilled: 5, match_completed: 2, forgive: 0,
+  date_completed: 10, date_missed: -5, penalty_done: 3, wish_fulfilled: 5, match_completed: 2,
 }
 
 export async function applyGameEvent(cid: string, ev: GameEvent): Promise<string[]> {
@@ -89,8 +88,6 @@ export async function applyGameEvent(cid: string, ev: GameEvent): Promise<string
       if (ev.winnerUid) counters[`wins_${ev.winnerUid}`] = (counters[`wins_${ev.winnerUid}`] ?? 0) + 1
     } else if (ev.type === 'wish_fulfilled') {
       counters.wishesDone = (counters.wishesDone ?? 0) + 1
-    } else if (ev.type === 'forgive') {
-      counters[`forgives_${ev.byUid}`] = (counters[`forgives_${ev.byUid}`] ?? 0) + 1
     }
 
     // فحص الأوسمة الجديدة
@@ -101,7 +98,6 @@ export async function applyGameEvent(cid: string, ev: GameEvent): Promise<string
     if ((counters.completedDates ?? 0) >= 20) earned.push('dates20')
     if ((counters.matches ?? 0) >= 10) earned.push('matches10')
     if (ev.type === 'match_completed' && ev.winnerUid && (counters[`wins_${ev.winnerUid}`] ?? 0) >= 1) earned.push('first_win')
-    if (ev.type === 'forgive' && (counters[`forgives_${ev.byUid}`] ?? 0) >= 3) earned.push('forgiver3')
     if ((counters.wishesDone ?? 0) >= 5) earned.push('wishes5')
 
     tx.set(gRef, { points, streak, bestStreak, counters, lastCompletedAt: serverTimestamp() }, { merge: true })
@@ -167,10 +163,6 @@ export async function assignPenalty(cid: string, penaltyId: string, punishmentTe
   await updateDoc(doc(db(), 'couples', cid, 'penalties', penaltyId), {
     status: 'assigned', punishmentText, spunAt: serverTimestamp(),
   })
-}
-export async function forgivePenalty(cid: string, penaltyId: string, byUid: string) {
-  await updateDoc(doc(db(), 'couples', cid, 'penalties', penaltyId), { status: 'forgiven' })
-  return applyGameEvent(cid, { type: 'forgive', byUid })
 }
 export async function penaltyDone(cid: string, penaltyId: string) {
   await updateDoc(doc(db(), 'couples', cid, 'penalties', penaltyId), { status: 'done' })

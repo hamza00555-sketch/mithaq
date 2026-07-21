@@ -7,6 +7,7 @@ import {
 import type { GameType, Match, Prize } from '../lib/types'
 import { DatePickerModal, Modal } from './Schedule'
 import Confetti from '../components/Confetti'
+import MoodGames from './MoodGames'
 import XoGame from './games/XoGame'
 import RpsGame from './games/RpsGame'
 import WhoGame from './games/WhoGame'
@@ -20,9 +21,13 @@ export default function Games() {
   const [prize, setPrize] = useState<Prize>('wish')
   const [wishText, setWishText] = useState('')
   const [pickDate, setPickDate] = useState<Match | null>(null)
+  const [moodView, setMoodView] = useState(false)
 
   const activeMatch = matches.find(m => m.status === 'waiting' || m.status === 'playing')
   const unsettled = matches.find(m => m.status === 'finished' && !m.prizeSettled)
+
+  // ═══ ألعاب الأجواء (محلية — من جوال واحد) ═══
+  if (moodView) return <MoodGames onBack={() => setMoodView(false)} />
 
   // ═══ مباراة جارية ═══
   if (activeMatch?.status === 'playing') {
@@ -86,10 +91,25 @@ export default function Games() {
         />
       )}
 
+      {/* ألعاب الأجواء */}
+      <button className="glass p-3.5 flex items-center gap-3 w-full text-right active:scale-[.98] transition-transform anim-popin"
+        style={{ borderColor: 'rgba(240,217,168,.5)', background: 'linear-gradient(120deg, rgba(148,66,122,.22), rgba(84,66,148,.18))' }}
+        onClick={() => setMoodView(true)}>
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
+          style={{ background: 'rgba(148,66,122,.35)', border: '1px solid rgba(240,217,168,.4)' }}>
+          🔥
+        </div>
+        <div className="flex-1">
+          <div className="text-sm font-extrabold">ألعاب الأجواء</div>
+          <div className="text-[11px] text-lavender/65">نرد الجو، بطاقات، وعجلة — سوا من جوال واحد لتدفئة الجو 😏</div>
+        </div>
+        <span className="opacity-40">‹</span>
+      </button>
+
       {/* قائمة الألعاب */}
       {!activeMatch && (
         <>
-          <p className="text-xs text-lavender/60">اختر لعبة وتحدَّ {partnerName} — تلعبونها كل واحد من جواله 📱</p>
+          <p className="text-xs text-lavender/60">أو تحدَّ {partnerName} — تلعبونها كل واحد من جواله 📱</p>
           {(Object.keys(GAME_META) as GameType[]).map(g => (
             <button key={g} className="glass p-3.5 flex items-center gap-3 w-full text-right active:scale-[.98] transition-transform"
               onClick={() => setCreating(g)}>
