@@ -14,6 +14,17 @@ export const monthShort = (d: Date) => fmtMonth.format(d)
 
 export const tsDate = (t: Timestamp | undefined | null): Date => t?.toDate?.() ?? new Date(0)
 
+// أسماء أيام الأسبوع بترتيب getDay (0=الأحد)
+export const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+export const WEEKDAYS_SHORT = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت']
+
+// تنسيق الوقت من ساعة/دقيقة (١٢ ساعة عربي)
+export function hmStr(hour: number, minute: number): string {
+  const d = new Date()
+  d.setHours(hour, minute, 0, 0)
+  return timeStr(d)
+}
+
 export function relDays(d: Date): string {
   const now = new Date()
   const a = new Date(now.getFullYear(), now.getMonth(), now.getDate())

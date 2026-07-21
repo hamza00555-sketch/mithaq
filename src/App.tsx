@@ -57,7 +57,7 @@ export default function App() {
 
   return (
     <div className="max-w-md mx-auto min-h-dvh relative">
-      <NightSky />
+      <NightSky showMoon={tab === 'home'} />
       {tab === 'home' && <Home onTab={t => { setTab(t); setGamesView('games') }} />}
       {tab === 'schedule' && <Schedule />}
       {tab === 'games' && (

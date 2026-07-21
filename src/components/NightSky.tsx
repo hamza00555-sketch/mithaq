@@ -13,12 +13,13 @@ const STARS = [
   { top: '48%', right: '48%', size: 2, delay: 2.4 },
 ]
 
-export default function NightSky() {
+// showMoon: يُعرض القمر المضيء في الرئيسية فقط (يتداخل مع أزرار الزاوية العلوية بالصفحات الأخرى)
+export default function NightSky({ showMoon = true }: { showMoon?: boolean }) {
   return (
     <>
       <div className="halo anim-floaty" style={{ width: 280, height: 280, top: -90, right: -80, background: 'radial-gradient(circle, rgba(84,66,148,.4), transparent 70%)' }} />
       <div className="halo" style={{ width: 250, height: 250, bottom: 30, left: -90, background: 'radial-gradient(circle, rgba(148,66,122,.27), transparent 70%)', animation: 'floaty 10s ease-in-out infinite reverse' }} />
-      <div className="moon" />
+      {showMoon && <div className="moon" />}
       {STARS.map((s, i) => (
         <div key={i} className="star" style={{ top: s.top, right: s.right, width: s.size, height: s.size, animationDelay: `${s.delay}s` }} />
       ))}

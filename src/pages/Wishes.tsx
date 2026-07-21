@@ -12,7 +12,17 @@ export default function Wishes() {
   return (
     <div className="p-4 pb-28 space-y-3 relative z-10">
       <h1 className="text-lg font-extrabold">💝 قائمة الأماني</h1>
-      <p className="text-xs text-lavender/60">أماني الفائزين من الألعاب — التزامات ما تنتسى 😄</p>
+
+      {/* شرح مبسط */}
+      <div className="glass p-4" style={{ borderColor: 'rgba(240,217,168,.4)' }}>
+        <div className="text-sm font-extrabold mb-2">وش هي الأماني؟ 🤔</div>
+        <div className="text-[12.5px] text-lavender/85 leading-6 space-y-1.5">
+          <div>١. تلعبون لعبة في <b>صالة الألعاب</b> وتختارون الرهان «<b>أمنية للفائز</b>» 🎮</div>
+          <div>٢. اللي يفوز يكتب <b>أمنية</b> يبيها من الثاني 🌟</div>
+          <div>٣. الخاسر <b>ملزم يحققها</b>، ولما يسويها يضغط «نفذتها» ✅</div>
+        </div>
+        <div className="text-[11px] text-lavender/55 mt-2.5">هنا تلقون كل الأماني المعلّقة — التزامات حلوة ما تنتسى 😄</div>
+      </div>
 
       {wishes.length === 0 && (
         <div className="glass p-8 text-center text-sm text-lavender/70">

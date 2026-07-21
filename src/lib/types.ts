@@ -5,12 +5,19 @@ export interface UserProfile {
   coupleId: string | null
 }
 
+export interface WeeklySchedule {
+  days: number[] // 0=الأحد .. 6=السبت (getDay)
+  hour: number
+  minute: number
+}
+
 export interface Couple {
   id: string
   members: string[]
   memberNames: Record<string, string>
   inviteCode: string
   createdAt: Timestamp
+  weeklySchedule?: WeeklySchedule | null
 }
 
 export type AppointmentStatus = 'proposed' | 'confirmed' | 'declined' | 'completed' | 'missed'
@@ -24,6 +31,7 @@ export interface Appointment {
   missedBy?: string
   resolvedAt?: Timestamp
   fromPrize?: boolean
+  fromSchedule?: boolean
 }
 
 export interface Punishment {

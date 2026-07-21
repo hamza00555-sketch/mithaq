@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useApp } from '../context/AppContext'
 import {
-  proposeAppointment, rescheduleAppointment, setAppointmentStatus, settleCompleted, settleMissed,
+  ensureScheduledAppointments, proposeAppointment, rescheduleAppointment,
+  setAppointmentStatus, setWeeklySchedule, settleCompleted, settleMissed,
 } from '../lib/data'
-import { dayName, dayNum, defaultWhen, monthShort, timeStr, tsDate } from '../lib/dates'
-import type { Appointment } from '../lib/types'
+import { dayName, dayNum, defaultWhen, hmStr, monthShort, timeStr, tsDate, WEEKDAYS, WEEKDAYS_SHORT } from '../lib/dates'
+import type { Appointment, WeeklySchedule } from '../lib/types'
 import Confetti from '../components/Confetti'
 
 const STATUS_CHIP: Record<string, { cls: string; label: string }> = {
@@ -21,10 +22,19 @@ export default function Schedule() {
   const [reschedule, setReschedule] = useState<Appointment | null>(null)
   const [settling, setSettling] = useState<Appointment | null>(null)
   const [celebrate, setCelebrate] = useState(false)
+  const [showSchedule, setShowSchedule] = useState(false)
   const uid = user!.uid
   const cid = couple!.id
+  const sched = couple?.weeklySchedule ?? null
 
   const needsSettle = appointments.filter(a => a.status === 'confirmed' && tsDate(a.scheduledAt).getTime() < Date.now())
+
+  // توليد مواعيد الجدول الأسبوعي تلقائيًا
+  useEffect(() => {
+    if (!sched || !sched.days?.length) return
+    const ids = new Set(appointments.map(a => a.id))
+    ensureScheduledAppointments(cid, sched, ids, uid).catch(() => {})
+  }, [cid, uid, sched, appointments])
 
   return (
     <div className="p-4 pb-28 space-y-3 relative z-10">
@@ -33,6 +43,25 @@ export default function Schedule() {
         <h1 className="text-lg font-extrabold">📅 المواعيد</h1>
         <button className="btn-gold px-4 py-2 text-sm" onClick={() => setShowAdd(true)}>＋ موعد جديد</button>
       </div>
+
+      {/* الجدول الأسبوعي */}
+      <button className="glass p-3.5 w-full text-right active:scale-[.98] transition-transform"
+        style={{ borderColor: 'rgba(122,92,201,.45)' }} onClick={() => setShowSchedule(true)}>
+        {sched && sched.days?.length ? (
+          <>
+            <div className="text-sm font-extrabold mb-0.5">🗓️ جدولكم الأسبوعي</div>
+            <div className="text-[11px] text-lavender/75">
+              {sched.days.map(d => WEEKDAYS[d]).join('، ')} · {hmStr(sched.hour, sched.minute)}
+              <span className="text-lavender/50"> — تنضاف تلقائيًا كل أسبوع ✨</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className="text-sm font-bold">🗓️ حددوا جدولكم الأسبوعي </span>
+            <span className="text-[11px] text-lavender/60">— بدل ما ترسلون طلب كل مرة، اتفقوا على أيام ثابتة</span>
+          </>
+        )}
+      </button>
 
       {needsSettle.map(a => (
         <div key={`settle-${a.id}`} className="glass p-4 anim-popin" style={{ borderColor: 'rgba(240,217,168,.5)' }}>
@@ -69,7 +98,7 @@ export default function Schedule() {
             <div className="flex-1 min-w-0">
               <div className="text-sm font-extrabold">{dayName(d)} {timeStr(d)}</div>
               <div className="text-[11px] text-lavender/70 truncate">
-                {a.fromPrize ? '🏆 جايزة لعبة' : mine ? 'اقترحته أنت' : `اقترحه ${partnerName}`}
+                {a.fromSchedule ? '🗓️ من جدولكم الأسبوعي' : a.fromPrize ? '🏆 جايزة لعبة' : mine ? 'اقترحته أنت' : `اقترحه ${partnerName}`}
                 {a.note ? ` · ${a.note}` : ''}
               </div>
               {a.status === 'proposed' && !mine && (
@@ -114,14 +143,67 @@ export default function Schedule() {
           </div>
         </Modal>
       )}
+
+      {showSchedule && (
+        <WeeklyScheduleModal
+          current={sched}
+          onClose={() => setShowSchedule(false)}
+          onSave={async s => { await setWeeklySchedule(cid, s); setShowSchedule(false) }}
+        />
+      )}
     </div>
+  )
+}
+
+function WeeklyScheduleModal({ current, onClose, onSave }: {
+  current: WeeklySchedule | null
+  onClose: () => void
+  onSave: (s: WeeklySchedule | null) => Promise<void>
+}) {
+  const [days, setDays] = useState<number[]>(current?.days ?? [])
+  const [time, setTime] = useState(
+    `${String(current?.hour ?? 21).padStart(2, '0')}:${String(current?.minute ?? 30).padStart(2, '0')}`,
+  )
+  const [busy, setBusy] = useState(false)
+  const toggle = (d: number) => setDays(x => x.includes(d) ? x.filter(y => y !== d) : [...x, d].sort())
+
+  return (
+    <Modal onClose={onClose}>
+      <div className="text-lg font-extrabold mb-1">🗓️ الجدول الأسبوعي</div>
+      <p className="text-xs text-lavender/70 mb-4">اختاروا أيامكم الثابتة ووقتها — التطبيق يضيفها لكم مؤكدة كل أسبوع تلقائيًا 💜</p>
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        {WEEKDAYS_SHORT.map((name, d) => (
+          <button key={d} onClick={() => toggle(d)}
+            className={`py-2.5 rounded-xl text-xs font-bold border transition-colors ${days.includes(d) ? 'border-gold bg-gold/15 text-gold' : 'border-lavender/20 bg-white/5 text-lavender/70'}`}>
+            {name}
+          </button>
+        ))}
+      </div>
+      <label className="text-xs text-lavender/70 block mb-1">الوقت</label>
+      <input type="time" className="field mb-4" dir="ltr" value={time} onChange={e => setTime(e.target.value)} />
+      <button className="btn-primary w-full py-3 mb-2" disabled={busy || days.length === 0}
+        onClick={async () => {
+          setBusy(true)
+          const [h, m] = time.split(':').map(Number)
+          try { await onSave({ days, hour: h || 21, minute: m || 0 }) } finally { setBusy(false) }
+        }}>
+        حفظ الجدول 🗓️
+      </button>
+      {current && (
+        <button className="btn-ghost w-full py-2.5 text-sm text-[#f5a3a3]" disabled={busy}
+          onClick={async () => { setBusy(true); try { await onSave(null) } finally { setBusy(false) } }}>
+          إيقاف الجدول الأسبوعي
+        </button>
+      )}
+    </Modal>
   )
 }
 
 export function Modal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="glass p-5 w-full max-w-sm anim-slideup" style={{ background: 'rgba(22,17,41,.92)' }} onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div className="glass p-5 w-full max-w-sm anim-slideup max-h-[85dvh] overflow-y-auto no-scrollbar"
+        style={{ background: 'rgba(22,17,41,.95)' }} onClick={e => e.stopPropagation()}>
         {children}
       </div>
     </div>

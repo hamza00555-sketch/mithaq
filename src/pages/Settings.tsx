@@ -3,6 +3,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useApp } from '../context/AppContext'
 import { BADGES } from '../lib/content'
+import { resetCoupleData } from '../lib/data'
 import { getStoredPin, hashPin, setStoredPin } from '../components/PinLock'
 import { Modal } from './Schedule'
 
@@ -13,6 +14,8 @@ export default function Settings() {
   const [pinModal, setPinModal] = useState(false)
   const [pin, setPin] = useState('')
   const [hasPin, setHasPin] = useState(Boolean(getStoredPin()))
+  const [resetModal, setResetModal] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   const earned = new Set(badges.map(b => b.badgeKey))
 
@@ -72,9 +75,42 @@ export default function Settings() {
         )}
       </div>
 
+      {/* بداية جديدة */}
+      <div className="glass p-4">
+        <div className="text-sm font-extrabold mb-1">🧹 بداية جديدة</div>
+        <p className="text-[11px] text-lavender/60 mb-3">
+          تصفير السجل بالكامل: المواعيد، العقوبات المعلّقة، الإشارات، المباريات، الأماني، الأوسمة، والنقاط.
+          يبقى: حسابكم، أسماؤكم، قائمة العقوبات، وجدولكم الأسبوعي.
+        </p>
+        <button className="btn-ghost w-full py-2.5 text-sm text-[#f5a3a3]" onClick={() => setResetModal(true)}>
+          تصفير البيانات
+        </button>
+      </div>
+
       <button className="btn-ghost w-full py-3 text-sm text-[#f5a3a3]" onClick={() => signOut(auth())}>
         تسجيل الخروج
       </button>
+
+      {resetModal && (
+        <Modal onClose={() => !resetting && setResetModal(false)}>
+          <div className="text-lg font-extrabold mb-2">🧹 تأكيد البداية الجديدة</div>
+          <p className="text-sm text-lavender/75 leading-6 mb-4">
+            متأكدين؟ بيُحذف كل السجل (مواعيد، مباريات، أماني، أوسمة، نقاط) ولا يمكن التراجع.
+            حسابكم وأسماؤكم وجدولكم الأسبوعي يبقون كما هم.
+          </p>
+          <button className="btn-primary w-full py-3 mb-2" disabled={resetting}
+            onClick={async () => {
+              if (!couple) return
+              setResetting(true)
+              try { await resetCoupleData(couple.id); setResetModal(false) } finally { setResetting(false) }
+            }}>
+            {resetting ? 'يتم التصفير...' : 'نعم، ابدأوا من جديد 🧹'}
+          </button>
+          <button className="btn-ghost w-full py-2.5 text-sm" disabled={resetting} onClick={() => setResetModal(false)}>
+            تراجع
+          </button>
+        </Modal>
+      )}
 
       {pinModal && (
         <Modal onClose={() => setPinModal(false)}>

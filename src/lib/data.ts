@@ -1,10 +1,10 @@
 import {
-  addDoc, arrayUnion, collection, doc, getDoc, increment,
-  runTransaction, serverTimestamp, setDoc, Timestamp, updateDoc,
+  addDoc, arrayUnion, collection, doc, getDoc, getDocs, increment,
+  runTransaction, serverTimestamp, setDoc, Timestamp, updateDoc, writeBatch,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import type {
-  GameType, Match, Prize, RpsPick, RpsState, TruthState, WhoState, XoState,
+  GameType, Match, Prize, RpsPick, RpsState, TruthState, WeeklySchedule, WhoState, XoState,
 } from './types'
 import { DEFAULT_PUNISHMENTS, TRUTH_CARDS, WHO_QUESTIONS } from './content'
 
@@ -136,6 +136,51 @@ export async function proposeAppointment(cid: string, uid: string, when: Date, n
 
 export async function setAppointmentStatus(cid: string, id: string, status: string) {
   await updateDoc(doc(db(), 'couples', cid, 'appointments', id), { status })
+}
+
+// ═══════════ الجدول الأسبوعي المتكرر ═══════════
+export async function setWeeklySchedule(cid: string, sched: WeeklySchedule | null) {
+  await updateDoc(coupleRef(cid), { weeklySchedule: sched })
+}
+
+const p2 = (n: number) => String(n).padStart(2, '0')
+export const scheduledId = (d: Date) => `sched-${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`
+
+// يولّد مواعيد مؤكدة تلقائيًا للأيام القادمة (١٤ يومًا) بمعرّفات ثابتة —
+// آمن للتشغيل من الطرفين: نفس المعرّف = كتابة واحدة، ولا يعيد إنشاء موعد سُوّي أو حُذف
+export async function ensureScheduledAppointments(
+  cid: string, sched: WeeklySchedule, existingIds: Set<string>, uid: string,
+) {
+  const now = new Date()
+  const tasks: Promise<void>[] = []
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, sched.hour, sched.minute, 0, 0)
+    if (!sched.days.includes(d.getDay())) continue
+    if (d.getTime() < Date.now() - 3600000) continue // تجاوز ما فات (بهامش ساعة)
+    const id = scheduledId(d)
+    if (existingIds.has(id)) continue
+    tasks.push(setDoc(doc(db(), 'couples', cid, 'appointments', id), {
+      scheduledAt: Timestamp.fromDate(d), proposedBy: uid, status: 'confirmed',
+      note: '', fromPrize: false, fromSchedule: true, createdAt: serverTimestamp(),
+    }))
+  }
+  if (tasks.length) await Promise.all(tasks)
+}
+
+// ═══════════ تصفير البيانات (بداية جديدة) ═══════════
+export async function resetCoupleData(cid: string) {
+  const collections = ['appointments', 'penalties', 'signals', 'matches', 'wishes', 'badges', 'challenges']
+  for (const name of collections) {
+    const snap = await getDocs(col(cid, name))
+    let batch = writeBatch(db())
+    let count = 0
+    for (const d of snap.docs) {
+      batch.delete(d.ref)
+      if (++count === 450) { await batch.commit(); batch = writeBatch(db()); count = 0 }
+    }
+    if (count) await batch.commit()
+  }
+  await setDoc(gameRef(cid), { points: 0, streak: 0, bestStreak: 0, counters: {} })
 }
 
 export async function rescheduleAppointment(cid: string, id: string, uid: string, when: Date) {
