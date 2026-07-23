@@ -2,8 +2,11 @@ import { useMemo, useRef, useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { addPunishment, assignPenalty, penaltyDone, togglePunishment } from '../lib/data'
 import type { Penalty } from '../lib/types'
+import BrandArt from '../components/BrandArt'
+import Icon, { type IconName } from '../components/Icon'
 
-const SEG_COLORS = ['#544294', '#94427a', '#d9a85c', '#7a5cc9', '#b0568f', '#8d6f3a', '#40639c', '#a34c5e']
+const SEG_COLORS = ['#c9876b', '#b8737f', '#d8a65a', '#d3a083', '#9f5665', '#e1b87a', '#a96e5a', '#7d5a60']
+const SEG_ICONS: IconName[] = ['spark', 'moon', 'wish', 'games', 'calendar', 'heart', 'flame', 'star']
 
 export default function Wheel() {
   const { user, couple, penalties, punishments, partnerName } = useApp()
@@ -37,7 +40,7 @@ export default function Wheel() {
   }
 
   const wheelBg = useMemo(() => {
-    if (active.length === 0) return '#544294'
+    if (active.length === 0) return '#c9876b'
     const seg = 360 / active.length
     const stops = active.map((_, i) =>
       `${SEG_COLORS[i % SEG_COLORS.length]} ${i * seg}deg ${(i + 1) * seg}deg`)
@@ -46,19 +49,25 @@ export default function Wheel() {
 
   return (
     <div className="p-4 pb-28 space-y-3 relative z-10">
-      <h1 className="text-lg font-extrabold">🎡 عجلة العقاب</h1>
+      <div className="page-title-row">
+        <div className="page-title">
+          <span className="icon-orb rose"><Icon name="wheel" size={21} /></span>
+          <h1>عجلة العقاب</h1>
+        </div>
+      </div>
+      <BrandArt name="wheel" />
 
       {myPending ? (
-        <div className="glass p-4" style={{ borderColor: 'rgba(240,217,168,.55)' }}>
-          <div className="text-sm font-bold">😅 عليك عقوبة معلقة!</div>
-          <div className="text-xs text-lavender/70 mt-1">خلفت الموعد... العجلة بتقرر مصيرك — ودّع وقتك 🎲</div>
+        <div className="glass p-4" style={{ borderColor: 'rgba(159,86,101,.24)' }}>
+          <div className="text-sm font-bold flex items-center gap-2"><Icon name="alert" size={17} className="text-rose-soft" /> عليك عقوبة معلقة</div>
+          <div className="text-xs text-lavender/70 mt-1">خلفت الموعد... العجلة بتقرر مصيرك</div>
         </div>
       ) : partnerPending ? (
         <div className="glass p-4">
-          <div className="text-sm">⏳ في انتظار {partnerName} يدور العجلة على عقوبته 👀</div>
+          <div className="text-sm flex items-center gap-2"><Icon name="clock" size={17} className="text-gold" /> في انتظار {partnerName} يدور العجلة على عقوبته</div>
         </div>
       ) : assigned.length === 0 ? (
-        <div className="glass p-4 text-sm text-lavender/70">✨ ما فيه عقوبات معلقة — استمروا بالالتزام!</div>
+        <div className="glass p-4 text-sm text-lavender/70 flex items-center gap-2"><Icon name="spark" size={17} className="text-gold" /> ما فيه عقوبات معلقة — استمروا بالالتزام</div>
       ) : null}
 
       {/* العجلة */}
@@ -76,21 +85,19 @@ export default function Wheel() {
               return (
                 <div key={p.id} className="absolute inset-0 flex justify-center pt-2.5"
                   style={{ transform: `rotate(${(i + 0.5) * seg}deg)` }}>
-                  <span className="text-[13px]" style={{ filter: 'drop-shadow(0 0 4px rgba(0,0,0,.5))' }}>
-                    {p.text.split(' ')[0]}
-                  </span>
+                  <span className="text-[13px]" style={{ filter: 'drop-shadow(0 1px 2px rgba(73,54,60,.2))' }}><Icon name={SEG_ICONS[i % SEG_ICONS.length]} size={14} /></span>
                 </div>
               )
             })}
           </div>
           <div className="absolute inset-0 m-auto w-13 h-13 rounded-full flex items-center justify-center text-xl"
-            style={{ background: '#161129', border: '3px solid #f0d9a8', width: 52, height: 52 }}>
-            🎯
+            style={{ background: '#fffaf5', border: '3px solid #d7b38d', width: 52, height: 52 }}>
+            <Icon name="target" size={20} className="text-gold" />
           </div>
         </div>
 
         {landed && (
-          <div className="glass p-3 text-center anim-popin w-full" style={{ borderColor: 'rgba(240,217,168,.55)' }}>
+          <div className="glass p-3 text-center anim-popin w-full" style={{ borderColor: 'rgba(159,86,101,.24)' }}>
             <div className="text-xs text-lavender/70 mb-1">العجلة حكمت! عقوبتك:</div>
             <div className="font-extrabold text-gold">{landed}</div>
           </div>
@@ -98,7 +105,7 @@ export default function Wheel() {
 
         {myPending && (
           <button className="btn-gold px-10 py-3 text-base" onClick={spin} disabled={spinning || active.length === 0}>
-            {spinning ? 'تدور... 🌀' : 'دوّر العجلة! 🎲'}
+            <span className="inline-flex items-center gap-2"><Icon name="wheel" size={18} /> {spinning ? 'تدور...' : 'دوّر العجلة'}</span>
           </button>
         )}
       </div>
@@ -113,11 +120,11 @@ export default function Wheel() {
             <div className="flex gap-2">
               {mine ? (
                 <button className="btn-primary flex-1 py-2.5 text-sm" onClick={() => penaltyDone(cid, p.id)}>
-                  نفذتها ✅ (+٣ نقاط)
+                  <span className="inline-flex items-center gap-2"><Icon name="check" size={16} /> نفذتها (+٣ نقاط)</span>
                 </button>
               ) : (
                 <button className="btn-ghost flex-1 py-2.5 text-sm" onClick={() => penaltyDone(cid, p.id)}>
-                  تم التنفيذ ✓
+                  <span className="inline-flex items-center gap-2"><Icon name="check" size={16} /> تم التنفيذ</span>
                 </button>
               )}
             </div>
@@ -127,12 +134,12 @@ export default function Wheel() {
 
       {/* إدارة قائمة العقوبات */}
       <div className="glass p-4">
-        <div className="text-sm font-extrabold mb-3">📜 قائمة العقوبات المتفق عليها</div>
+        <div className="text-sm font-extrabold mb-3 flex items-center gap-2"><Icon name="cards" size={17} className="text-gold" /> قائمة العقوبات المتفق عليها</div>
         <div className="space-y-2 mb-3">
           {punishments.map(p => (
             <label key={p.id} className="flex items-center gap-2.5 text-sm">
               <input type="checkbox" checked={p.active} onChange={e => togglePunishment(cid, p.id, e.target.checked)}
-                className="accent-[#94427a] w-4 h-4" />
+                className="accent-[#9f5665] w-4 h-4" />
               <span className={p.active ? '' : 'opacity-40 line-through'}>{p.text}</span>
             </label>
           ))}

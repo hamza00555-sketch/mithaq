@@ -1,5 +1,5 @@
 // احتفال بسيط بدون مكتبات
-const COLORS = ['#f0d9a8', '#e8919f', '#cabfff', '#7a5cc9', '#40c9b0', '#b0568f']
+const COLORS = ['#d8a65a', '#b8737f', '#c9876b', '#9f5665', '#7c9a86', '#edc985']
 
 export default function Confetti() {
   const pieces = Array.from({ length: 40 }, (_, i) => ({

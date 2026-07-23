@@ -1,6 +1,7 @@
 import { useApp } from '../../context/AppContext'
 import { xoMove } from '../../lib/data'
 import type { Match, XoState } from '../../lib/types'
+import Icon from '../../components/Icon'
 
 export default function XoGame({ match }: { match: Match }) {
   const { user, couple, partnerName } = useApp()
@@ -27,8 +28,8 @@ export default function XoGame({ match }: { match: Match }) {
       </div>
       <div className="text-center text-sm mt-4">
         {myTurn
-          ? <span className="text-gold font-bold animate-pulse">دورك — العب! 🎯</span>
-          : <span className="text-lavender/60">دور {partnerName}... ⏳</span>}
+          ? <span className="text-gold font-bold animate-pulse inline-flex items-center gap-1"><Icon name="target" size={15} /> دورك — العب!</span>
+          : <span className="text-lavender/60 inline-flex items-center gap-1"><Icon name="clock" size={14} /> دور {partnerName}...</span>}
       </div>
     </div>
   )

@@ -1,13 +1,14 @@
 import { useApp } from '../../context/AppContext'
 import { rpsPick } from '../../lib/data'
 import type { Match, RpsPick, RpsState } from '../../lib/types'
+import Icon, { type IconName } from '../../components/Icon'
 
-const PICKS: { id: RpsPick; icon: string; name: string }[] = [
-  { id: 'rock', icon: '🪨', name: 'حجرة' },
-  { id: 'paper', icon: '📄', name: 'ورقة' },
-  { id: 'scissors', icon: '✂️', name: 'مقص' },
+const PICKS: { id: RpsPick; icon: IconName; name: string }[] = [
+  { id: 'rock', icon: 'rock', name: 'حجرة' },
+  { id: 'paper', icon: 'paper', name: 'ورقة' },
+  { id: 'scissors', icon: 'scissors', name: 'مقص' },
 ]
-const ICON: Record<RpsPick, string> = { rock: '🪨', paper: '📄', scissors: '✂️' }
+const ICON: Record<RpsPick, IconName> = { rock: 'rock', paper: 'paper', scissors: 'scissors' }
 const toArabicNum = (n: number) => new Intl.NumberFormat('ar-SA-u-ca-gregory-nu-arab').format(n)
 
 export default function RpsGame({ match }: { match: Match }) {
@@ -28,20 +29,20 @@ export default function RpsGame({ match }: { match: Match }) {
 
       {s.lastResult && (
         <div className="glass px-3 py-2 my-3 flex items-center justify-center gap-4 text-2xl anim-popin">
-          <span>{ICON[s.lastResult.picks[uid]]}</span>
+          <Icon name={ICON[s.lastResult.picks[uid]]} size={26} />
           <span className="text-xs text-lavender/70">
-            {s.lastResult.winner === 'draw' ? '🤝 تعادل — نعيد' : s.lastResult.winner === uid ? '🎉 لك' : `👏 لـ${partnerName}`}
+            {s.lastResult.winner === 'draw' ? 'تعادل — نعيد' : s.lastResult.winner === uid ? 'لك' : `لـ${partnerName}`}
           </span>
-          <span>{ICON[s.lastResult.picks[other]]}</span>
+          <Icon name={ICON[s.lastResult.picks[other]]} size={26} />
         </div>
       )}
 
       <p className="text-center text-sm my-4">
         {!iPicked
-          ? <span className="text-gold font-bold animate-pulse">اختر سرًا — {partnerName} ما يشوف اختيارك 🤫</span>
+          ? <span className="text-gold font-bold animate-pulse">اختر سرًا — {partnerName} ما يشوف اختيارك</span>
           : theyPicked
-            ? 'انكشفت الأوراق! 👆'
-            : <span className="text-lavender/60">اخترت ✓ — بانتظار {partnerName}... ⏳</span>}
+            ? 'انكشفت الأوراق!'
+            : <span className="text-lavender/60 inline-flex items-center gap-1"><Icon name="check" size={14} /> اخترت — بانتظار {partnerName}...</span>}
       </p>
 
       <div className="grid grid-cols-3 gap-3">
@@ -49,7 +50,7 @@ export default function RpsGame({ match }: { match: Match }) {
           <button key={p.id} disabled={iPicked}
             className={`glass p-4 flex flex-col items-center gap-1 active:scale-95 transition-transform ${iPicked && s.picks[uid] === p.id ? 'border-gold!' : ''} ${iPicked ? 'opacity-50' : ''}`}
             onClick={() => rpsPick(couple!.id, match, uid, p.id)}>
-            <span className="text-3xl">{p.icon}</span>
+            <span className="icon-orb"><Icon name={p.icon} size={22} /></span>
             <span className="text-xs font-bold">{p.name}</span>
           </button>
         ))}

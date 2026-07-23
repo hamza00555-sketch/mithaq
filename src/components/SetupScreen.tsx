@@ -1,10 +1,13 @@
-// تظهر عندما لا توجد مفاتيح Firebase في .env
+import BrandMark from './BrandMark'
+import Icon from './Icon'
+
 export default function SetupScreen() {
   return (
     <div className="min-h-dvh flex items-center justify-center p-6 relative z-10">
       <div className="glass p-6 max-w-md w-full anim-slideup">
-        <div className="text-3xl mb-3 text-center">🌙</div>
+        <div className="mb-3 text-center"><BrandMark size={72} /></div>
         <h1 className="gold-glow text-2xl font-extrabold text-center mb-4">ميثاق — يحتاج إعداد</h1>
+        <div className="flex justify-center mb-4 text-gold"><Icon name="settings" size={24} /></div>
         <p className="text-sm leading-7 text-lavender mb-4">
           التطبيق جاهز، بس يحتاج ربطه بمشروع Firebase (مجاني):
         </p>

@@ -14,6 +14,8 @@ import Wheel from './pages/Wheel'
 import Wishes from './pages/Wishes'
 import Settings from './pages/Settings'
 import { tsDate } from './lib/dates'
+import BrandMark from './components/BrandMark'
+import Icon from './components/Icon'
 
 export default function App() {
   const { loading, user, profile, couple, penalties, matches, wishes, appointments } = useApp()
@@ -44,8 +46,9 @@ export default function App() {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-center gap-3 relative z-10">
         <NightSky />
-        <div className="text-4xl anim-floaty">🌙</div>
+        <BrandMark size={76} className="anim-floaty" />
         <div className="gold-glow text-2xl font-extrabold">ميثاق</div>
+        <div className="text-xs text-lavender/60">مساحة دافئة لشخصين</div>
       </div>
     )
   }
@@ -64,10 +67,10 @@ export default function App() {
         <>
           <div className="px-4 pt-3 relative z-10 flex gap-2">
             <button className={`chip ${gamesView === 'games' ? 'chip-done' : 'btn-ghost px-3 py-1 text-[11px]'}`}
-              onClick={() => setGamesView('games')}>🎮 الألعاب</button>
+              onClick={() => setGamesView('games')}><span className="inline-flex items-center gap-1"><Icon name="games" size={14} /> الألعاب</span></button>
             <button className={`chip ${gamesView === 'wheel' ? 'chip-done' : 'btn-ghost px-3 py-1 text-[11px]'}`}
               onClick={() => setGamesView('wheel')}>
-              🎡 العجلة{hasPenaltyFlow ? ' •' : ''}
+              <span className="inline-flex items-center gap-1"><Icon name="wheel" size={14} /> العجلة{hasPenaltyFlow ? ' •' : ''}</span>
             </button>
           </div>
           {gamesView === 'games' ? <Games /> : <Wheel />}
